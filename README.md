@@ -67,7 +67,7 @@ cp .env .env.example
 Start the server:
 
 ```bash
-npm start
+npm run dev
 ```
 
 ### 3. Frontend Setup
@@ -82,7 +82,7 @@ Visit `http://localhost:4200` to open the app.
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 You can deploy the app using:
 
@@ -92,12 +92,7 @@ You can deploy the app using:
 
 ---
 
-## 🧪 Testing
-
-* Unit tests and integration tests (coming soon)
-* Manual UI testing using Chrome/Firefox dev tools
-
-## 👥 Contributors
+## Contributors
 
 * [Adithya V](https://github.com/adithya-getinsured)
 
