@@ -99,25 +99,6 @@ You can deploy the app using:
 
 ## 👥 Contributors
 
-* [Your Name](https://github.com/your-username)
+* [Adithya V](https://github.com/adithya-getinsured)
 
 Want to contribute? Pull requests are welcome!
-
----
-
-## 📌 Roadmap
-
-* [x] Authentication system
-* [x] Global chatroom
-* [x] Real-time messaging
-* [x] Message history
-* [ ] Chat rooms or DMs
-* [ ] Mobile optimization
-* [ ] Dark mode
-
----
-
-```
-
-Let me know if you want this split into multiple Markdown files, or auto-generated using a CLI or template engine like `readme-md-generator`.
-```
