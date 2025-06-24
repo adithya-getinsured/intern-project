@@ -31,6 +31,7 @@ const loginValidation = [
 router.post('/register', registerValidation, authController.register);
 router.post('/login', loginValidation, authController.login);
 router.post('/logout', authMiddleware, authController.logout);
+// ASK: Global use across microservices?
 router.post('/verify-token', authController.verifyToken);
 router.get('/me', authMiddleware, authController.getCurrentUser);
 
