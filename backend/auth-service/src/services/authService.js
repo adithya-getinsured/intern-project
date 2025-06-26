@@ -68,26 +68,31 @@ class AuthService {
         id: user._id,
         username: user.username,
         email: user.email,
-        avatar: user.avatar,
+        avatar: user.avatar, // Will be a link. In S3 or self host object bucket
         isOnline: user.isOnline
       }
     };
   }
 
   async logout(userId) {
-    const user = await User.findById(userId);
-    if (user) {
-      user.isOnline = false;
-      user.lastSeen = new Date();
-      await user.save();
+    try {
+      const user = await User.findById(userId);
+      if (user) {
+        user.isOnline = false;
+        user.lastSeen = new Date();
+        await user.save();
+      }
+    } catch (error) {
+      throw new Error('Error while logging out: ' + error.message);
     }
   }
+
 
   async verifyToken(token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.id).select('-password');
-      
+
       if (!user) {
         throw new Error('User not found');
       }

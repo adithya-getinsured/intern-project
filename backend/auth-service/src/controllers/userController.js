@@ -1,4 +1,4 @@
-const userService = require('./userController');
+const userService = require('../services/userService');
 
 class UserController {
   // Get user profile

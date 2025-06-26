@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const authService = require('./authController');
+const authService = require('../services/authService');
 
 class AuthController {
   // Register
@@ -38,7 +38,7 @@ class AuthController {
 
       const { email, password } = req.body;
       const result = await authService.login(email, password);
-      
+
       res.json({
         message: 'Login successful',
         ...result
@@ -53,7 +53,8 @@ class AuthController {
   // Logout
   async logout(req, res) {
     try {
-      await authService.logout(req.user.id);
+      const userId = req.user.id;
+      await authService.logout(userId);
       res.json({ message: 'Logout successful' });
     } catch (error) {
       res.status(500).json({
@@ -62,6 +63,7 @@ class AuthController {
       });
     }
   }
+
 
   // Verify token
   async verifyToken(req, res) {
