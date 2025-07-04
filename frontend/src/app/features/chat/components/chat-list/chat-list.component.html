@@ -1,0 +1,96 @@
+<div class="chat-container">
+  <mat-toolbar color="primary">
+    <span>Chat Rooms</span>
+    <span class="spacer"></span>
+    <button mat-icon-button [matMenuTriggerFor]="profileMenu" matTooltip="Profile">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-menu #profileMenu="matMenu">
+    <button mat-menu-item (click)="viewProfile()">
+      <mat-icon>person</mat-icon>
+      <span>View Profile</span>
+    </button>
+    <button mat-menu-item (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span>Logout</span>
+    </button>
+  </mat-menu>
+
+  <div class="content">
+    <div class="rooms-container">
+      <div class="section">
+        <div class="section-header">
+          <h2>My Rooms</h2>
+          <button mat-mini-fab color="primary" (click)="showCreateRoom = !showCreateRoom" matTooltip="Create Room">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <mat-card *ngIf="showCreateRoom" class="create-room-card">
+          <form [formGroup]="createRoomForm" (ngSubmit)="createRoom()">
+            <mat-form-field appearance="outline">
+              <mat-label>Room Name</mat-label>
+              <input matInput formControlName="name" placeholder="Enter room name">
+              <mat-error *ngIf="createRoomForm.get('name')?.invalid && createRoomForm.get('name')?.touched">
+                {{ getErrorMessage('name') }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Description (Optional)</mat-label>
+              <textarea matInput formControlName="description" placeholder="Enter room description"></textarea>
+              <mat-error *ngIf="createRoomForm.get('description')?.invalid && createRoomForm.get('description')?.touched">
+                {{ getErrorMessage('description') }}
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-button type="button" (click)="showCreateRoom = false">Cancel</button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="createRoomForm.invalid || isLoading">
+                <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+                <span *ngIf="!isLoading">Create Room</span>
+              </button>
+            </div>
+          </form>
+        </mat-card>
+
+        <mat-card class="rooms-list">
+          <mat-list>
+            <mat-list-item *ngFor="let room of userRooms" [routerLink]="['/chat/room', room.id]">
+              <mat-icon matListItemIcon>chat</mat-icon>
+              <div matListItemTitle>{{ room.name }}</div>
+              <div matListItemLine *ngIf="room.description">{{ room.description }}</div>
+            </mat-list-item>
+            <mat-list-item *ngIf="userRooms.length === 0">
+              <div matListItemTitle class="text-secondary">No rooms joined yet</div>
+            </mat-list-item>
+          </mat-list>
+        </mat-card>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h2>Public Rooms</h2>
+        </div>
+
+        <mat-card class="rooms-list">
+          <mat-list>
+            <mat-list-item *ngFor="let room of publicRooms" (click)="joinRoom(room.id)">
+              <mat-icon matListItemIcon>public</mat-icon>
+              <div matListItemTitle>{{ room.name }}</div>
+              <div matListItemLine *ngIf="room.description">{{ room.description }}</div>
+              <button mat-icon-button matListItemMeta>
+                <mat-icon>login</mat-icon>
+              </button>
+            </mat-list-item>
+            <mat-list-item *ngIf="publicRooms.length === 0">
+              <div matListItemTitle class="text-secondary">No public rooms available</div>
+            </mat-list-item>
+          </mat-list>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div> 

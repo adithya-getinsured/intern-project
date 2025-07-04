@@ -1,0 +1,69 @@
+<div class="chat-container">
+  <mat-toolbar color="primary">
+    <button mat-icon-button routerLink="/chat" matTooltip="Back to Rooms">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="room-name">{{ room?.name }}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="leaveRoom()" matTooltip="Leave Room">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="messages-container" #messageContainer>
+    <div class="messages-list">
+      <div class="message" *ngFor="let message of messages" [ngClass]="{'own-message': isCurrentUser(message.userId)}">
+        <div class="message-header">
+          <span class="username">{{ message.username }}</span>
+          <span class="timestamp">{{ formatTimestamp(message.createdAt) }}</span>
+        </div>
+        <div class="message-content">
+          {{ message.content }}
+        </div>
+        <div class="message-actions" *ngIf="isCurrentUser(message.userId)">
+          <button mat-icon-button (click)="editMessage(message)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="deleteMessage(message.id)" matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="no-messages" *ngIf="!isLoading && messages.length === 0">
+        No messages yet
+      </div>
+      <mat-spinner *ngIf="isLoading" diameter="40" class="loading-spinner"></mat-spinner>
+    </div>
+  </div>
+
+  <div class="message-input-container">
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+      <mat-form-field appearance="outline" class="message-input">
+        <input matInput
+               formControlName="content"
+               placeholder="Type a message..."
+               [maxlength]="1000"
+               (keyup.enter)="sendMessage()">
+        <mat-error *ngIf="messageForm.get('content')?.hasError('required')">
+          Message cannot be empty
+        </mat-error>
+        <mat-error *ngIf="messageForm.get('content')?.hasError('maxlength')">
+          Message cannot exceed 1000 characters
+        </mat-error>
+      </mat-form-field>
+      <button mat-icon-button
+              type="submit"
+              [disabled]="!messageForm.valid || isLoading"
+              matTooltip="Send Message">
+        <mat-icon>send</mat-icon>
+      </button>
+      <button mat-icon-button
+              type="button"
+              *ngIf="editingMessageId"
+              (click)="resetMessageForm()"
+              matTooltip="Cancel Edit">
+        <mat-icon>close</mat-icon>
+      </button>
+    </form>
+  </div>
+</div> 

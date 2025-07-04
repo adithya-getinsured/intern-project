@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.html',
-  standalone: false,
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet],
+  template: '<router-outlet></router-outlet>',
+  styles: [`
+    :host {
+      display: block;
+      height: 100vh;
+      background-color: var(--bg-primary);
+    }
+  `]
 })
-export class App {
-  protected title = 'frontend';
-}
+export class AppComponent { }
