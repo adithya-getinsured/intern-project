@@ -70,10 +70,18 @@ class ChatController {
         content
       );
 
-      // Broadcast the updated message to all clients in the room
+      // Broadcast the updated message to all clients in the room.
+      // Convert Mongoose ObjectId to string to match the room name the sockets joined with,
+      // and ensure an `id` property is present for frontend convenience.
       const io = req.app.get('io');
       if (io) {
-        io.to(message.roomId).emit('message_edited', message);
+        const roomId = message.roomId.toString();
+        const payload = {
+          ...message.toObject({ virtuals: false }),
+          roomId,
+          id: message._id.toString() // alias _id to id for client mapping
+        };
+        io.to(roomId).emit('message_edited', payload);
       }
       
       res.json({
@@ -92,10 +100,17 @@ class ChatController {
     try {
       const { messageId } = req.params;
       
-      await chatService.deleteMessage(messageId, req.user.id);
-      
+      const { messageId: deletedId, roomId } = await chatService.deleteMessage(messageId, req.user.id);
+
+      // Broadcast deletion to all clients in the room
+      const io = req.app.get('io');
+      if (io && roomId) {
+        io.to(roomId).emit('message_deleted', { messageId: deletedId });
+      }
+
       res.json({
-        message: 'Message deleted successfully'
+        message: 'Message deleted successfully',
+        messageId: deletedId
       });
     } catch (error) {
       res.status(400).json({

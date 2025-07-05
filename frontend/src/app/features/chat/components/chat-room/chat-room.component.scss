@@ -2,6 +2,9 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Center the entire chat UI in the middle of the viewport */
+  max-width: 900px;
+  margin: 0 auto; /* horizontal centering */
   background-color: var(--bg-primary);
 
   .spacer {
@@ -20,6 +23,7 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  align-items: center; /* center message list horizontally */
 
   .messages-list {
     max-width: 800px;

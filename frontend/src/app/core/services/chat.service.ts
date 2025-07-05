@@ -18,7 +18,7 @@ function mapMessage(msg: any): Message {
   return {
     id: msg._id || msg.id,
     content: msg.content,
-    roomId: msg.roomId,
+    roomId: typeof msg.roomId === 'string' ? msg.roomId : (msg.roomId?._id || msg.roomId?.toString?.() || String(msg.roomId)),
     userId: msg.senderId || msg.userId,
     username: msg.senderUsername || msg.username,
     createdAt: msg.createdAt,

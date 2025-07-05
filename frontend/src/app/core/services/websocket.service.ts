@@ -17,7 +17,7 @@ function mapMessage(msg: any): Message {
   return {
     id: msg._id || msg.id,
     content: msg.content,
-    roomId: msg.roomId,
+    roomId: typeof msg.roomId === 'string' ? msg.roomId : (msg.roomId?._id || msg.roomId?.toString?.() || String(msg.roomId)),
     userId: msg.senderId || msg.userId,
     username: msg.senderUsername || msg.username,
     createdAt: msg.createdAt,
@@ -32,6 +32,10 @@ export class WebSocketService {
   private socket: Socket | null = null;
   private messageSubject = new BehaviorSubject<Message | null>(null);
   message$ = this.messageSubject.asObservable();
+
+  // Separate stream for deleted messages (emits the deleted messageId)
+  private messageDeletedSubject = new BehaviorSubject<string | null>(null);
+  messageDeleted$ = this.messageDeletedSubject.asObservable();
 
   connect(token: string): void {
     if (!this.socket) {
@@ -74,8 +78,12 @@ export class WebSocketService {
         this.messageSubject.next(mapMessage(message));
       });
 
-      this.socket.on('message_deleted', (messageId: string) => {
-        // Handle message deletion in the UI
+      this.socket.on('message_deleted', (messageId: string | { messageId: string }) => {
+        // Backend might emit just the id or an object – normalise to id
+        const id = typeof messageId === 'string' ? messageId : messageId?.messageId;
+        if (id) {
+          this.messageDeletedSubject.next(id);
+        }
       });
 
       this.socket.on('disconnect', () => {

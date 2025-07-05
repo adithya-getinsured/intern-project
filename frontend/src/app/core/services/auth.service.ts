@@ -30,6 +30,18 @@ export class AuthService {
   private checkToken() {
     const token = localStorage.getItem('token');
     if (token && !this.jwtHelper.isTokenExpired(token)) {
+      // First, decode the token to populate the current user synchronously.
+      try {
+        const decoded: any = this.jwtHelper.decodeToken(token);
+        if (decoded?.id) {
+          // We only have the id at this point – username / email will be fetched later.
+          this.currentUserSubject.next({ id: decoded.id, username: '', email: '' });
+        }
+      } catch {
+        // ignore decode errors; we'll rely on the network request below
+      }
+
+      // Then, fetch fresh user details from the backend to ensure accuracy.
       this.getCurrentUser().subscribe();
     } else {
       this.logout();
@@ -57,6 +69,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     this.currentUserSubject.next(null);
   }
 
@@ -67,12 +80,37 @@ export class AuthService {
   }
 
   getCurrentUserId(): string | null {
+    // Attempt to read the id from the already-loaded currentUser first
     const currentUser = this.currentUserSubject.getValue();
-    return currentUser?.id || null;
+    if (currentUser?.id) {
+      return currentUser.id;
+    }
+
+    // Fallback: decode the JWT from localStorage to obtain the user id immediately.
+    // This guarantees we can identify the current user even before the /auth/me
+    // request completes, preventing UI flicker where messages temporarily appear
+    // as if they were sent by another user.
+    const token = localStorage.getItem('token');
+    if (token && !this.jwtHelper.isTokenExpired(token)) {
+      try {
+        const decoded: any = this.jwtHelper.decodeToken(token);
+        if (decoded?.id) {
+          return decoded.id as string;
+        }
+      } catch {
+        // ignore decode errors – we will simply return null below
+      }
+    }
+
+    return null;
   }
 
   private handleAuthentication(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
+    // Persist the user id separately for quick access by other parts of the app
+    if (response.user?.id) {
+      localStorage.setItem('userId', response.user.id);
+    }
     this.currentUserSubject.next(response.user);
   }
 

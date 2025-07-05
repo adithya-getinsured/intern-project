@@ -63,6 +63,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
   editingMessageId: string | null = null;
   private roomId: string = '';
   private messageSubscription?: Subscription;
+  private deletionSubscription?: Subscription;
   private shouldScrollToBottom = true;
 
   constructor(
@@ -94,10 +95,24 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
     // Subscribe to WebSocket messages for real-time updates
     this.messageSubscription = this.webSocketService.message$.subscribe(message => {
       if (message && message.roomId === this.roomId) {
-        // Avoid duplicates
-        if (!this.messages.some(m => m.id === message.id)) {
+        const index = this.messages.findIndex(m => m.id === message.id);
+        if (index === -1) {
+          // New message
           this.messages.push(message);
           this.shouldScrollToBottom = true;
+        } else {
+          // Edited message – update content in place
+          this.messages[index] = message;
+        }
+      }
+    });
+
+    this.deletionSubscription = this.webSocketService.messageDeleted$.subscribe(id => {
+      if (id) {
+        const before = this.messages.length;
+        this.messages = this.messages.filter(m => m.id !== id);
+        if (this.messages.length !== before) {
+          this.shouldScrollToBottom = false;
         }
       }
     });
@@ -105,6 +120,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy(): void {
     this.messageSubscription?.unsubscribe();
+    this.deletionSubscription?.unsubscribe();
     this.webSocketService.leaveRoom(this.roomId);
   }
 
@@ -231,7 +247,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   isCurrentUser(userId: string): boolean {
-    const current = String(this.authService.getCurrentUserId());
+    const current = String(this.authService.getCurrentUserId() || localStorage.getItem('userId'));
     const msgUser = String(userId);
     console.log('isCurrentUser:', { current, msgUser, result: current === msgUser });
     return current === msgUser;
