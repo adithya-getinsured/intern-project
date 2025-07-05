@@ -90,6 +90,17 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.loadRoom();
     this.loadMessages();
     this.setupWebSocket();
+
+    // Subscribe to WebSocket messages for real-time updates
+    this.messageSubscription = this.webSocketService.message$.subscribe(message => {
+      if (message && message.roomId === this.roomId) {
+        // Avoid duplicates
+        if (!this.messages.some(m => m.id === message.id)) {
+          this.messages.push(message);
+          this.shouldScrollToBottom = true;
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -142,17 +153,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (token) {
       this.webSocketService.connect(token);
       this.webSocketService.joinRoom(this.roomId);
-      this.messageSubscription = this.webSocketService.message$.subscribe(message => {
-        if (message) {
-          const existingIndex = this.messages.findIndex(m => m.id === message.id);
-          if (existingIndex >= 0) {
-            this.messages[existingIndex] = message;
-          } else {
-            this.messages.push(message);
-            this.shouldScrollToBottom = true;
-          }
-        }
-      });
     }
   }
 
@@ -181,7 +181,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
         } else {
           this.chatService.sendMessage(this.roomId, content).subscribe({
             next: (message) => {
-              this.messages.push(message);
+              // Do not push the message immediately – it will arrive via WebSocket.
               this.resetMessageForm();
             },
             error: () => {
@@ -194,8 +194,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
           });
         }
       }
-    } else {
-      this.messageForm.markAllAsTouched();
     }
   }
 
@@ -233,7 +231,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   isCurrentUser(userId: string): boolean {
-    return this.authService.getCurrentUserId() === userId;
+    const current = String(this.authService.getCurrentUserId());
+    const msgUser = String(userId);
+    console.log('isCurrentUser:', { current, msgUser, result: current === msgUser });
+    return current === msgUser;
   }
 
   formatTimestamp(timestamp: string): string {

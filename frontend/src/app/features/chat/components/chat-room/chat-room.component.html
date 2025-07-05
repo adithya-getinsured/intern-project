@@ -13,7 +13,7 @@
   <div class="messages-container" #messageContainer>
     <div class="messages-list">
       <div class="message" *ngFor="let message of messages" [ngClass]="{'own-message': isCurrentUser(message.userId)}">
-        <div class="message-header">
+        <div class="message-header" [ngClass]="{'own-header': isCurrentUser(message.userId)}">
           <span class="username">{{ message.username }}</span>
           <span class="timestamp">{{ formatTimestamp(message.createdAt) }}</span>
         </div>
@@ -44,9 +44,6 @@
                placeholder="Type a message..."
                [maxlength]="1000"
                (keyup.enter)="sendMessage()">
-        <mat-error *ngIf="messageForm.get('content')?.hasError('required')">
-          Message cannot be empty
-        </mat-error>
         <mat-error *ngIf="messageForm.get('content')?.hasError('maxlength')">
           Message cannot exceed 1000 characters
         </mat-error>

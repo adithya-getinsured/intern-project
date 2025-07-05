@@ -16,6 +16,12 @@ class ChatController {
       };
 
       const message = await chatService.sendMessage(messageData);
+
+      // Broadcast the new message to all clients in the room via WebSocket
+      const io = req.app.get('io');
+      if (io) {
+        io.to(roomId).emit('new_message', message);
+      }
       
       res.status(201).json({
         message: 'Message sent successfully',
@@ -63,6 +69,12 @@ class ChatController {
         req.user.id, 
         content
       );
+
+      // Broadcast the updated message to all clients in the room
+      const io = req.app.get('io');
+      if (io) {
+        io.to(message.roomId).emit('message_edited', message);
+      }
       
       res.json({
         message: 'Message updated successfully',

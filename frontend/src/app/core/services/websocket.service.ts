@@ -54,27 +54,27 @@ export class WebSocketService {
 
   joinRoom(roomId: string): void {
     if (this.socket) {
-      this.socket.emit('join-room', roomId);
+      this.socket.emit('join_room', { roomId });
     }
   }
 
   leaveRoom(roomId: string): void {
     if (this.socket) {
-      this.socket.emit('leave-room', roomId);
+      this.socket.emit('leave_room', { roomId });
     }
   }
 
   private setupEventListeners(): void {
     if (this.socket) {
-      this.socket.on('new-message', (message: any) => {
+      this.socket.on('new_message', (message: any) => {
         this.messageSubject.next(mapMessage(message));
       });
 
-      this.socket.on('message-updated', (message: any) => {
+      this.socket.on('message_edited', (message: any) => {
         this.messageSubject.next(mapMessage(message));
       });
 
-      this.socket.on('message-deleted', (messageId: string) => {
+      this.socket.on('message_deleted', (messageId: string) => {
         // Handle message deletion in the UI
       });
 
