@@ -16,6 +16,9 @@ interface Room {
 }
 
 function mapRoom(room: any): Room {
+  // Extract user IDs from members array for participants
+  const participants = room.members ? room.members.map((member: any) => member.userId) : [];
+  
   return {
     id: room._id || room.id,
     name: room.name,
@@ -24,7 +27,7 @@ function mapRoom(room: any): Room {
     createdBy: room.createdBy,
     createdAt: room.createdAt,
     updatedAt: room.updatedAt,
-    participants: room.participants || room.members || [],
+    participants: participants,
     // ...copy other fields as needed
   };
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { forkJoin } from 'rxjs';
 import { RoomService } from '../../../../core/services/room.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -74,19 +75,23 @@ export class ChatListComponent implements OnInit {
 
   loadRooms(): void {
     this.isLoading = true;
-    Promise.all([
-      this.roomService.getPublicRooms().toPromise(),
-      this.roomService.getUserRooms().toPromise()
-    ]).then(([publicRooms, userRooms]) => {
-      this.publicRooms = publicRooms || [];
-      this.userRooms = userRooms || [];
-      this.isLoading = false;
-    }).catch(error => {
-      this.isLoading = false;
-      this.snackBar.open('Failed to load rooms', 'Close', {
-        duration: 5000,
-        panelClass: 'error-snackbar'
-      });
+    
+    forkJoin({
+      publicRooms: this.roomService.getPublicRooms(),
+      userRooms: this.roomService.getUserRooms()
+    }).subscribe({
+      next: (result) => {
+        this.publicRooms = result.publicRooms || [];
+        this.userRooms = result.userRooms || [];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.snackBar.open('Failed to load rooms', 'Close', {
+          duration: 5000,
+          panelClass: 'error-snackbar'
+        });
+      }
     });
   }
 
@@ -99,7 +104,10 @@ export class ChatListComponent implements OnInit {
           this.isLoading = false;
           this.showCreateRoom = false;
           this.createRoomForm.reset();
-          this.loadRooms();
+          
+          // Add the newly created room to the userRooms array immediately
+          this.userRooms.unshift(room);
+          
           this.snackBar.open('Room created successfully', 'Close', {
             duration: 3000,
             panelClass: 'success-snackbar'
