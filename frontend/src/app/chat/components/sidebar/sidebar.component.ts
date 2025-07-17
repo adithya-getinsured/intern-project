@@ -31,6 +31,18 @@ export class SidebarComponent implements OnInit {
       this.currentUser = user;
     });
     this.loadRooms();
+    
+    // Listen for room updates
+    this.chatService.onRoomUpdated().subscribe(updatedRoom => {
+      // Update the room in the list
+      const roomIndex = this.myRooms.findIndex(room => room._id === updatedRoom._id);
+      if (roomIndex !== -1) {
+        this.myRooms[roomIndex] = updatedRoom;
+        // Sort rooms by updatedAt to maintain order
+        this.myRooms.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      }
+    });
+    
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged()

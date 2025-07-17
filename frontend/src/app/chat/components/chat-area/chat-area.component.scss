@@ -57,15 +57,52 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    position: relative;
+
+    .scroll-to-bottom-btn {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background-color: var(--orange);
+      color: var(--white);
+      border: none;
+      border-radius: 20px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      i {
+        font-size: 0.7rem;
+      }
+    }
   
     .message-item {
       display: flex;
       margin-bottom: 1rem;
+      position: relative;
+
+      &:hover {
+        .message-content .message-actions {
+          opacity: 1;
+        }
+      }
   
-      .message-content {
-        padding: 0.75rem 1rem;
-        border-radius: 18px;
-        max-width: 70%;
+              .message-content {
+          padding: 0.75rem 1rem;
+          border-radius: 18px;
+          max-width: 70%;
+          position: relative;
         
         .message-sender {
           font-weight: bold;
@@ -85,6 +122,74 @@
           display: block;
           text-align: right;
           margin-top: 0.25rem;
+        }
+
+        // Message actions (edit/delete icons)
+        .message-actions {
+          display: flex;
+          gap: 0.25rem;
+          position: absolute;
+          right: 0.25rem;
+          top: 0.25rem;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+          z-index: 10;
+
+          .action-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+            min-width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.8);
+              color: var(--white);
+              transform: scale(1.05);
+            }
+
+            &.edit-btn {
+              &:hover {
+                color: var(--orange);
+              }
+            }
+
+            &.delete-btn {
+              color: rgba(255, 107, 107, 0.9);
+
+              &:hover {
+                color: #ff6b6b;
+              }
+            }
+          }
+        }
+
+
+
+        // Edited indicator
+        .edited-indicator {
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.5);
+          font-style: italic;
+          margin-left: 0.5rem;
+        }
+
+        // Deleted message styling
+        &.deleted-message {
+          opacity: 0.6;
+
+          .deleted-text {
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.5);
+          }
         }
       }
   
@@ -111,33 +216,64 @@
   
   .message-input {
     display: flex;
+    flex-direction: column;
     padding: 1rem;
     border-top: 1px solid var(--light-grey);
-  
-    input {
-      flex-grow: 1;
-      padding: 0.75rem;
-      border: 1px solid var(--orange);
-      background-color: var(--light-grey);
-      color: var(--white);
-      border-radius: 20px;
-      margin-right: 1rem;
-  
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+
+    .edit-indicator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem;
+      background-color: rgba(255, 165, 0, 0.1);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--orange);
+
+      .cancel-edit-btn {
+        background: none;
+        border: none;
+        color: var(--orange);
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 0.8rem;
+
+        &:hover {
+          opacity: 0.8;
+        }
       }
     }
-  
-    button {
-      background-color: var(--orange);
-      color: var(--white);
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 20px;
-      cursor: pointer;
-  
-      &:hover {
-        opacity: 0.9;
+
+    .input-container {
+      display: flex;
+      align-items: center;
+
+      input {
+        flex-grow: 1;
+        padding: 0.75rem;
+        border: 1px solid var(--orange);
+        background-color: var(--light-grey);
+        color: var(--white);
+        border-radius: 20px;
+        margin-right: 1rem;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+
+      button {
+        background-color: var(--orange);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 20px;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.9;
+        }
       }
     }
   }
@@ -173,3 +309,5 @@
     0%, 100% { opacity: 0.5; }
     50% { opacity: 1; }
   }
+
+

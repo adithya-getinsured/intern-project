@@ -97,6 +97,8 @@ export class ChatService {
   editMessage(message: any) {
     if (this.socket) {
       this.socket.emit('edit-message', message);
+    } else {
+      console.error('Socket not connected. Cannot edit message.');
     }
   }
 
@@ -139,6 +141,14 @@ export class ChatService {
     return new Observable(observer => {
       if (this.socket) {
         this.socket.on('message-deleted', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  onRoomUpdated(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('room-updated', (data: any) => observer.next(data));
       }
     });
   }

@@ -105,6 +105,11 @@ class ChatService {
     
     return rooms;
   }
+
+  async getRoomById(roomId) {
+    const room = await Room.findById(roomId);
+    return room;
+  }
   
   async sendMessage(messageData) {
     const { roomId, sender, content, messageType = 'text' } = messageData;
@@ -148,8 +153,7 @@ class ChatService {
   
   async getRoomMessages(roomId, page = 1, limit = 50) {
     const messages = await Message.find({
-      roomId,
-      deleted: false
+      roomId
     })
     .sort({ createdAt: -1 })
     .limit(limit * 1)
@@ -199,11 +203,20 @@ class ChatService {
       throw new Error('You can only delete your own messages');
     }
     
-    message.deleted = true;
-    message.deletedAt = new Date();
-    await message.save();
-    
-    return message;
+    // Check if message is within 2 minutes of creation
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+    if (message.createdAt > twoMinutesAgo) {
+      message.deleted = true;
+      message.deletedAt = new Date();
+      await message.save();
+      
+      // Update room's last message if this was the last message
+      await this.updateRoomLastMessage(message.roomId);
+      
+      return message;
+    } else {
+      throw new Error('Messages can only be deleted within 2 minutes of sending');
+    }
   }
   
   async editMessage(messageId, newContent, userId) {
@@ -216,12 +229,49 @@ class ChatService {
       throw new Error('You can only edit your own messages');
     }
     
-    message.content = newContent;
-    message.edited = true;
-    message.editedAt = new Date();
-    await message.save();
+    // Check if message is within 2 minutes of creation
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+    if (message.createdAt > twoMinutesAgo) {
+      message.content = newContent;
+      message.edited = true;
+      message.editedAt = new Date();
+      await message.save();
+      
+      // Update room's last message if this was the last message
+      await this.updateRoomLastMessage(message.roomId);
+      
+      return message;
+    } else {
+      throw new Error('Messages can only be edited within 2 minutes of sending');
+    }
+  }
+
+  async updateRoomLastMessage(roomId) {
+    // Find the most recent non-deleted message in the room
+    const lastMessage = await Message.findOne({
+      roomId,
+      deleted: { $ne: true }
+    }).sort({ createdAt: -1 });
     
-    return message;
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return;
+    }
+    
+    if (lastMessage) {
+      // Update room with the last non-deleted message
+      room.lastMessage = {
+        content: lastMessage.content,
+        sender: lastMessage.sender.username,
+        timestamp: lastMessage.createdAt
+      };
+    } else {
+      // No messages left, clear the last message
+      room.lastMessage = null;
+    }
+    
+    room.updatedAt = new Date();
+    await room.save();
   }
 
   async searchRooms(term, userId) {

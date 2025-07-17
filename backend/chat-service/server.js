@@ -4,7 +4,7 @@ const cors = require('cors');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const axios = require('axios');
-const { generateToken } = require('./utils/jwt');
+const { generateToken } = require('../shared/utils/jwt');
 require('dotenv').config();
 
 const chatRoutes = require('./routes/chatRoutes');
@@ -166,6 +166,12 @@ io.on('connection', async (socket) => {
         editedAt: message.editedAt
       });
       
+      // Emit room update to all users
+      const updatedRoom = await chatService.getRoomById(message.roomId);
+      if (updatedRoom) {
+        io.to(message.roomId.toString()).emit('room-updated', updatedRoom);
+      }
+      
       console.log(`Message ${messageId} edited by ${socket.userId}`);
     } catch (error) {
       socket.emit('error', { message: error.message });
@@ -186,6 +192,12 @@ io.on('connection', async (socket) => {
         deleted: true,
         deletedAt: message.deletedAt
       });
+      
+      // Emit room update to all users
+      const updatedRoom = await chatService.getRoomById(message.roomId);
+      if (updatedRoom) {
+        io.to(message.roomId.toString()).emit('room-updated', updatedRoom);
+      }
       
       console.log(`Message ${messageId} deleted by ${socket.userId}`);
     } catch (error) {

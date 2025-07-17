@@ -30,8 +30,9 @@ export class CreateRoomModalComponent implements OnInit {
       members: [[], [Validators.required]]
     });
 
+    const currentUser = this.authService.currentUserValue;
     this.authService.getUsers().subscribe(res => {
-      this.users = res.data;
+      this.users = res.data.filter((user: any) => user._id !== currentUser.userId);
     });
 
     this.searchControl.valueChanges.pipe(
@@ -41,10 +42,11 @@ export class CreateRoomModalComponent implements OnInit {
   }
   
   searchUsers(term: string) {
+    const currentUser = this.authService.currentUserValue;
     this.authService.getUsers().subscribe(res => {
-      this.users = res.data.filter((user: any) => 
-        user.username.toLowerCase().includes(term.toLowerCase())
-      );
+      this.users = res.data
+        .filter((user: any) => user._id !== currentUser.userId)
+        .filter((user: any) => user.username.toLowerCase().includes(term.toLowerCase()));
     });
   }
 
