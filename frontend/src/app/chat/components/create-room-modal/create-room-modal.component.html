@@ -1,0 +1,26 @@
+<div class="modal-overlay" *ngIf="isOpen">
+  <div class="modal-content">
+    <h2>Create New Room</h2>
+    <form [formGroup]="createRoomForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="roomname">Room Name</label>
+        <input id="roomname" type="text" formControlName="roomname" placeholder="Enter room name">
+      </div>
+      <div class="form-group">
+        <label>Add Members</label>
+        <input type="text" [formControl]="searchControl" placeholder="Search for users...">
+        <div class="user-list">
+          <div *ngFor="let user of users" class="user-item">
+            <input type="checkbox" [value]="user._id" (change)="onMemberChange($event)">
+            <img [src]="'/avatars/' + user.avatar" alt="avatar">
+            <span>{{ user.username }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" (click)="close.emit()">Cancel</button>
+        <button type="submit" [disabled]="createRoomForm.invalid">Create</button>
+      </div>
+    </form>
+  </div>
+</div>

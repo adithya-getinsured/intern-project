@@ -1,0 +1,42 @@
+<div class="chat-area-container">
+  <ng-container *ngIf="room; else noRoomSelected">
+    <div class="chat-header">
+      <h3>{{ formatRoomName(room) }}</h3>
+    </div>
+    
+    <!-- Error message display -->
+    <div class="error-message" *ngIf="error">
+      <p>{{ error }}</p>
+      <button (click)="error = null">Dismiss</button>
+    </div>
+    
+    <div class="messages-container">
+      <div *ngFor="let message of messages"
+           class="message-item"
+           [ngClass]="{ 'my-message': message.sender.userId === currentUser?.userId }">
+        <div class="message-content">
+          <div class="message-sender" *ngIf="message.sender.userId !== currentUser?.userId">
+            {{ message.sender.username }}
+          </div>
+          <p>{{ message.content }}</p>
+          <span class="timestamp">{{ message.createdAt | date:'short' }}</span>
+        </div>
+      </div>
+      
+      <!-- Typing indicator -->
+      <div class="typing-indicator" *ngIf="typingIndicatorText">
+        <p>{{ typingIndicatorText }}</p>
+      </div>
+    </div>
+    <div class="message-input">
+      <input type="text" [formControl]="messageControl" placeholder="Type a message..." (keyup.enter)="sendMessage()">
+      <button (click)="sendMessage()">Send</button>
+    </div>
+  </ng-container>
+
+  <ng-template #noRoomSelected>
+    <div class="no-room-selected">
+      <h2>Select a room to start chatting</h2>
+    </div>
+  </ng-template>
+</div>
