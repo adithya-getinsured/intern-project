@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+//@ts-ignore
 import { io, Socket } from 'socket.io-client';
 import { AuthService } from './auth.service';
 
@@ -9,6 +10,7 @@ import { AuthService } from './auth.service';
 })
 export class ChatService {
   private apiUrl = '/api/chat'; // Using proxy
+  //@ts-ignore
   private socket: Socket | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService) {
@@ -35,7 +37,7 @@ export class ChatService {
     if (token) {
       console.log('Connecting socket with token');
       // Connect directly to the backend server
-      this.socket = io('http://localhost:3002', {
+      this.socket = io(`http://localhost:3002`, {
         auth: {
           token: `Bearer ${token}`
         },
@@ -50,7 +52,7 @@ export class ChatService {
       this.socket.on('connect', () => {
         console.log('Socket connected successfully');
       });
-      
+      //@ts-ignore
       this.socket.on('disconnect', (reason) => {
         console.log('Socket disconnected:', reason);
       });
