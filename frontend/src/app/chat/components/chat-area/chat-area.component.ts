@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ElementRef, AfterViewChecked, Output, EventEmitter } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -11,6 +11,8 @@ import { Subscription, debounceTime, Subject } from 'rxjs';
 })
 export class ChatAreaComponent implements OnInit, OnChanges, OnDestroy, AfterViewChecked {
   @Input() room: any;
+  @Input() isMobile = false;
+  @Output() backToSidebar = new EventEmitter<void>();
   messages: any[] = [];
   messageControl = new FormControl('');
   currentUser: any;
@@ -260,15 +262,10 @@ export class ChatAreaComponent implements OnInit, OnChanges, OnDestroy, AfterVie
     return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
   }
 
-  // Public method to manually scroll to bottom
-  scrollToBottomManually(): void {
-    this.shouldScrollToBottom = true;
-  }
-
-  // Handle scroll events
+  // Remove scrollToBottomManually and isNearBottom methods
+  // Simplify onScroll if needed
   onScroll(): void {
-    // Update shouldScrollToBottom based on current scroll position
-    this.shouldScrollToBottom = this.isNearBottom();
+    // No-op or keep for future use
   }
 
   // Typing indicator methods

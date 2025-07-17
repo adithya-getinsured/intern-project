@@ -1,10 +1,119 @@
 :host {
-    display: flex;
+  display: flex;
+  height: 100vh;
+  background-color: var(--dark-grey);
+}
+
+.chat-layout-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+
+  &.mobile {
+    flex-direction: column;
     height: 100vh;
-    background-color: var(--dark-grey);
+    .chat-area-wrapper, app-sidebar {
+      width: 100%;
+      height: 100vh;
+      min-width: 0;
+      min-height: 0;
+    }
+    app-sidebar {
+      z-index: 2;
+    }
+    .chat-area-wrapper {
+      z-index: 3;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      background: var(--dark-grey);
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      color: var(--orange);
+      font-size: 1.1rem;
+      padding: 1rem 1.5rem 0.5rem 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      i {
+        margin-right: 0.5rem;
+      }
+    }
   }
-  
+}
+
+// Desktop/tablet layout
+app-sidebar {
+  width: 340px;
+  min-width: 260px;
+  max-width: 400px;
+  height: 100vh;
+}
+
+.chat-area-wrapper, app-chat-area {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+}
+
+// Hide username/email at ≤1024px
+@media (max-width: 1024px) {
+  app-sidebar .profile-section .user-details .username,
+  app-sidebar .profile-section .user-details .email {
+    display: none;
+  }
+}
+
+// Mobile layout at ≤806px
+@media (max-width: 806px) {
   .chat-layout-container {
-    display: flex;
-    width: 100%;
+    flex-direction: column;
+    height: 100vh;
+    app-sidebar, .chat-area-wrapper {
+      width: 100vw;
+      min-width: 0;
+      min-height: 0;
+      height: 100vh;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    app-sidebar {
+      z-index: 2;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: var(--light-grey);
+    }
+    .chat-area-wrapper {
+      z-index: 3;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: var(--dark-grey);
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      background: none;
+      border: none;
+      color: var(--orange);
+      font-size: 1.1rem;
+      padding: 1rem 1.5rem 0.5rem 1.5rem;
+      cursor: pointer;
+      z-index: 10;
+      i {
+        margin-right: 0.5rem;
+      }
+    }
   }
+}

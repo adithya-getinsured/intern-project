@@ -84,7 +84,7 @@ export class SidebarComponent implements OnInit {
     const otherMember = room.members.find((member: any) => 
       member.userId !== this.currentUser?.userId
     );
-    
+
     // If no other member found (talking to self) or same userId
     if (!otherMember) {
       const selfMember = room.members.find((member: any) => 

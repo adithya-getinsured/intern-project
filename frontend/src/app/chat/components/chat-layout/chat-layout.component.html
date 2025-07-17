@@ -1,4 +1,14 @@
-<div class="chat-layout-container">
-  <app-sidebar (roomSelected)="onRoomSelected($event)"></app-sidebar>
-  <app-chat-area [room]="selectedRoom"></app-chat-area>
+<div class="chat-layout-container" [class.mobile]="isMobile">
+  <ng-container *ngIf="isMobile; else desktopLayout">
+    <app-sidebar *ngIf="isSidebarVisible" (roomSelected)="onRoomSelected($event)"></app-sidebar>
+    <div class="chat-area-wrapper" *ngIf="!isSidebarVisible">
+      <app-chat-area [room]="selectedRoom" [isMobile]="isMobile" (backToSidebar)="onBackToSidebar()"></app-chat-area>
+    </div>
+  </ng-container>
+  <ng-template #desktopLayout>
+    <app-sidebar (roomSelected)="onRoomSelected($event)"></app-sidebar>
+    <div class="chat-area-wrapper">
+      <app-chat-area [room]="selectedRoom" [isMobile]="false"></app-chat-area>
+    </div>
+  </ng-template>
 </div>

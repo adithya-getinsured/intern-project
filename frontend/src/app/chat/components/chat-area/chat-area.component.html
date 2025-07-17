@@ -1,6 +1,9 @@
 <div class="chat-area-container">
   <ng-container *ngIf="room; else noRoomSelected">
     <div class="chat-header">
+      <button *ngIf="isMobile" class="back-btn" (click)="backToSidebar.emit()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
       <h3>{{ formatRoomName(room) }}</h3>
     </div>
     
@@ -11,12 +14,6 @@
     </div>
     
     <div class="messages-container" #messagesContainer (scroll)="onScroll()">
-      <!-- Scroll to bottom button -->
-      <div class="scroll-to-bottom-btn" *ngIf="!isNearBottom()" (click)="scrollToBottomManually()">
-        <i class="fas fa-arrow-down"></i>
-        <span>New messages</span>
-      </div>
-      
       <div *ngFor="let message of messages"
            class="message-item"
            [ngClass]="{ 'my-message': message.sender.userId === currentUser?.userId }">
