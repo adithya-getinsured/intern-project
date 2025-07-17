@@ -4,7 +4,7 @@ const cors = require('cors');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const axios = require('axios');
-const { generateToken } = require('../shared/utils/jwt');
+const { generateToken } = require('./utils/jwt');
 require('dotenv').config();
 
 const chatRoutes = require('./routes/chatRoutes');
