@@ -37,7 +37,7 @@ export class ChatService {
     if (token) {
       console.log('Connecting socket with token');
       // Connect directly to the backend server
-      this.socket = io(`http://localhost:3002`, {
+      this.socket = io(`https://chatbox-chat-service.onrender.com`, {
         auth: {
           token: `Bearer ${token}`
         },
