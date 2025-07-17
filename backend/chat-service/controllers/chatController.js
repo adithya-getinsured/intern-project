@@ -48,7 +48,7 @@ class ChatController {
       
       // Get sender info from auth service
       console.log('Fetching sender profile from auth service for ID:', senderId);
-      const authResponse = await axios.get(`http://localhost:3001/api/auth/profile/${senderId}`, {
+      const authResponse = await axios.get(`${process.env.AUTH_SERVICE_URL}/api/auth/profile/${senderId}`, {
         headers: {
           Authorization: token // Pass the token to auth service
         }

@@ -7,18 +7,28 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chat-auth';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
+}));
 app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'Auth Service is running', port: PORT });
+app.get('/', (req, res) => {
+  res.json({ status: 'Auth Service is running' });
+});
+
+//global catch
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // Connect to MongoDB

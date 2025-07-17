@@ -23,7 +23,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
+    origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type", "x-requested-with"],
     credentials: true
@@ -34,11 +34,11 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3002;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27018/chat-service';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
+  origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
 }));
@@ -47,12 +47,10 @@ app.use(express.json());
 // Routes
 app.use('/api/chat', chatRoutes);
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'Chat Service is running', port: PORT });
+app.get('/', (req, res) => {
+  res.json({ status: 'Chat Service is running' });
 });
 
-// Configure axios for service-to-service communication
 const serviceAxios = axios.create();
 serviceAxios.interceptors.request.use(config => {
   const serviceToken = createServiceToken();
@@ -74,7 +72,7 @@ io.on('connection', async (socket) => {
   
   // Update user online status
   try {
-    await serviceAxios.post(`http://localhost:3001/api/auth/users/${socket.userId}/online`, {
+    await serviceAxios.post(`${process.env.AUTH_SERVICE_URL}/api/auth/users/${socket.userId}/online`, {
       isOnline: true
     });
     console.log(`User ${socket.userId} marked as online`);
@@ -117,7 +115,7 @@ io.on('connection', async (socket) => {
       console.log(`Attempting to send message in room ${roomId} by user ${socket.userId}`);
       
       // Get user info from auth service
-      const authResponse = await serviceAxios.get(`http://localhost:3001/api/auth/profile/${socket.userId}`);
+      const authResponse = await serviceAxios.get(`${process.env.AUTH_SERVICE_URL}/api/auth/profile/${socket.userId}`);
       const user = authResponse.data.data;
       
       const message = await chatService.sendMessage({
@@ -249,7 +247,7 @@ io.on('connection', async (socket) => {
     
     // Update user offline status
     try {
-      await serviceAxios.post(`http://localhost:3001/api/auth/users/${socket.userId}/online`, {
+      await serviceAxios.post(`${process.env.AUTH_SERVICE_URL}/api/auth/users/${socket.userId}/online`, {
         isOnline: false
       });
       console.log(`User ${socket.userId} marked as offline`);
@@ -257,6 +255,12 @@ io.on('connection', async (socket) => {
       console.error('Failed to update user offline status:', error.message);
     }
   });
+});
+
+//global catch
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // Connect to MongoDB

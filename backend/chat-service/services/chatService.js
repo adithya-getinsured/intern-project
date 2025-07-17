@@ -16,7 +16,7 @@ class ChatService {
     if (!memberIds.includes(creatorId)) {
       // Get creator info from auth service
       try {
-        const authResponse = await axios.get(`http://localhost:3001/api/auth/profile/${creatorId}`);
+        const authResponse = await axios.get(`${process.env.AUTH_SERVICE_URL}/api/auth/profile/${creatorId}`);
         const creator = authResponse.data.data;
         members.push({
           userId: creatorId,
