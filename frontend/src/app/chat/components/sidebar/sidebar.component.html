@@ -1,0 +1,58 @@
+<div class="sidebar-container">
+  <div class="header">
+    <h2>Chatbox</h2>
+    <button class="add-room-btn" (click)="openCreateRoomModal()">+</button>
+  </div>
+
+  <div class="search-container">
+    <input type="text" [formControl]="searchControl" placeholder="Search for users or rooms...">
+    <div class="search-results" *ngIf="isSearching">
+      <div *ngIf="searchedUsers.length > 0" class="search-section">
+        <h3 class="search-heading">Users</h3>
+        <div *ngFor="let user of searchedUsers" class="user-item" (click)="startDirectMessage(user)">
+          <img [src]="'/avatars/' + user.avatar" alt="avatar">
+          <span>{{ user.username }}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="searchedRooms.length > 0" class="search-section">
+        <h3 class="search-heading">Rooms</h3>
+        <div *ngFor="let room of searchedRooms" class="user-item" (click)="selectRoom(room)">
+          <i class="room-icon">🏠</i>
+          <span>{{ formatRoomName(room) }}</span>
+        </div>
+      </div>
+      
+      <div *ngIf="searchedUsers.length === 0 && searchedRooms.length === 0" class="no-results">
+        No results found
+      </div>
+    </div>
+  </div>
+
+  <div class="room-list" *ngIf="!isSearching">
+    <div *ngFor="let room of myRooms" class="room-item" (click)="selectRoom(room)">
+      <div class="room-info">
+        <span class="room-name">{{ formatRoomName(room) }}</span>
+        <span class="last-message">{{ room.lastMessage?.content }}</span>
+      </div>
+      <span class="timestamp">{{ room.lastMessage?.timestamp | date:'shortTime' }}</span>
+    </div>
+  </div>
+
+  <div class="profile-section">
+    <div class="profile-info">
+      <img [src]="'/avatars/' + currentUser?.avatar" alt="avatar">
+      <div class="user-details">
+        <span class="username">{{ currentUser?.username }}</span>
+        <span class="email">{{ currentUser?.email }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </div>
+</div>
+
+<app-create-room-modal
+  [isOpen]="isCreateRoomModalOpen"
+  (close)="closeCreateRoomModal()"
+  (create)="createRoom($event)">
+</app-create-room-modal>

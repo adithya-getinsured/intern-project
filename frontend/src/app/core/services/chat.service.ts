@@ -1,64 +1,192 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { environment } from '../../../environments/environment';
-
-interface Message {
-  id: string;
-  content: string;
-  roomId: string;
-  userId: string;
-  username: string;
-  createdAt: string;
-  updatedAt: string;
-  // ...other fields
-}
-
-function mapMessage(msg: any): Message {
-  return {
-    id: msg._id || msg.id,
-    content: msg.content,
-    roomId: typeof msg.roomId === 'string' ? msg.roomId : (msg.roomId?._id || msg.roomId?.toString?.() || String(msg.roomId)),
-    userId: msg.senderId || msg.userId,
-    username: msg.senderUsername || msg.username,
-    createdAt: msg.createdAt,
-    updatedAt: msg.updatedAt,
-    // ...copy other fields as needed
-  };
-}
+import { Observable } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  constructor(private http: HttpClient) {}
+  private apiUrl = '/api/chat'; // Using proxy
+  private socket: Socket | null = null;
 
-  sendMessage(roomId: string, content: string): Observable<Message> {
-    return this.http.post<any>(`${environment.chatApiUrl}/chat/messages`, {
-      roomId,
-      content
-    }).pipe(map(res => mapMessage(res.data || res)));
+  constructor(private http: HttpClient, private authService: AuthService) {
+    this.setupSocketConnection();
+    
+    // Subscribe to auth token changes
+    this.authService.token$.subscribe(token => {
+      if (token) {
+        // Reconnect socket with new token if we already had a socket
+        if (this.socket) {
+          this.socket.disconnect();
+        }
+        this.setupSocketConnection();
+      } else if (this.socket) {
+        // Disconnect socket when logged out
+        this.socket.disconnect();
+        this.socket = null;
+      }
+    });
   }
 
-  getRoomMessages(roomId: string): Observable<Message[]> {
-    return this.http.get<any>(`${environment.chatApiUrl}/chat/rooms/${roomId}/messages`).pipe(
-      map(res => (res.messages || res.data || res).map(mapMessage))
-    );
+  private setupSocketConnection() {
+    const token = this.authService.tokenValue;
+    if (token) {
+      console.log('Connecting socket with token');
+      // Connect directly to the backend server
+      this.socket = io('http://localhost:3002', {
+        auth: {
+          token: `Bearer ${token}`
+        },
+        transports: ['websocket', 'polling'],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000
+      });
+      
+      // Setup socket event handling
+      this.socket.on('connect', () => {
+        console.log('Socket connected successfully');
+      });
+      
+      this.socket.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
+      });
+      
+      // Setup socket error handling
+      this.socket.on('connect_error', (error: Error) => {
+        console.error('Socket connection error:', error.message);
+      });
+    }
   }
 
-  editMessage(messageId: string, content: string): Observable<Message> {
-    return this.http.put<any>(`${environment.chatApiUrl}/chat/messages/${messageId}`, {
-      content
-    }).pipe(map(res => mapMessage(res.data || res)));
+  // REST API calls
+  getMyRooms(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/my-rooms`);
   }
 
-  deleteMessage(messageId: string): Observable<void> {
-    return this.http.delete<void>(`${environment.chatApiUrl}/chat/messages/${messageId}`);
+  createRoom(roomData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/create-room`, roomData);
   }
 
-  searchMessages(roomId: string, query: string): Observable<Message[]> {
-    return this.http.get<any>(`${environment.chatApiUrl}/chat/rooms/${roomId}/search`, {
-      params: { query }
-    }).pipe(map(res => (res.data || res).map(mapMessage)));
+  directMessage(dmData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/direct-message`, dmData);
+  }
+
+  searchRooms(term: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/search-rooms?term=${term}`);
+  }
+
+  getRoomMessages(roomId: string, page = 1, limit = 50): Observable<any> {
+    return this.http.get(`${this.apiUrl}/room/${roomId}/messages?page=${page}&limit=${limit}`);
+  }
+
+  // WebSocket event emitters
+  sendMessage(message: any) {
+    if (this.socket) {
+      this.socket.emit('send-message', message);
+    } else {
+      console.error('Socket not connected. Cannot send message.');
+      // Try to reconnect
+      this.setupSocketConnection();
+    }
+  }
+
+  editMessage(message: any) {
+    if (this.socket) {
+      this.socket.emit('edit-message', message);
+    } else {
+      console.error('Socket not connected. Cannot edit message.');
+    }
+  }
+
+  deleteMessage(messageId: string) {
+    if (this.socket) {
+      this.socket.emit('delete-message', { messageId });
+    }
+  }
+
+  joinRoom(roomId: string) {
+    if (this.socket) {
+      this.socket.emit('join-room', roomId);
+    }
+  }
+
+  leaveRoom(roomId: string) {
+    if (this.socket) {
+      this.socket.emit('leave-room', roomId);
+    }
+  }
+
+  // WebSocket event listeners
+  onNewMessage(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('new-message', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  onMessageEdited(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('message-edited', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  onMessageDeleted(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('message-deleted', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  onRoomUpdated(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('room-updated', (data: any) => observer.next(data));
+      }
+    });
+  }
+  
+  onError(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('error', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  // Typing indicator methods
+  sendTypingStarted(roomId: string, username: string) {
+    if (this.socket) {
+      this.socket.emit('typing-start', { roomId, username });
+    }
+  }
+
+  sendTypingStopped(roomId: string) {
+    if (this.socket) {
+      this.socket.emit('typing-stop', { roomId });
+    }
+  }
+
+  onUserTyping(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('user-typing', (data: any) => observer.next(data));
+      }
+    });
+  }
+
+  onUserStoppedTyping(): Observable<any> {
+    return new Observable(observer => {
+      if (this.socket) {
+        this.socket.on('user-stopped-typing', (data: any) => observer.next(data));
+      }
+    });
   }
 } 

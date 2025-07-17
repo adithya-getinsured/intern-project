@@ -1,0 +1,77 @@
+<div class="chat-area-container">
+  <ng-container *ngIf="room; else noRoomSelected">
+    <div class="chat-header">
+      <button *ngIf="isMobile" class="back-btn" (click)="backToSidebar.emit()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <h3>{{ formatRoomName(room) }}</h3>
+    </div>
+    
+    <!-- Error message display -->
+    <div class="error-message" *ngIf="error">
+      <p>{{ error }}</p>
+      <button (click)="error = null">Dismiss</button>
+    </div>
+    
+    <div class="messages-container" #messagesContainer (scroll)="onScroll()">
+      <div *ngFor="let message of messages"
+           class="message-item"
+           [ngClass]="{ 'my-message': message.sender.userId === currentUser?.userId }">
+        
+        <!-- Deleted message display -->
+        <div class="message-content deleted-message" *ngIf="message.deleted">
+          <p class="deleted-text">This message was deleted</p>
+          <span class="timestamp">{{ message.createdAt | date:'short' }}</span>
+        </div>
+        
+        <!-- Normal message display -->
+        <div class="message-content" *ngIf="!message.deleted">
+          <div class="message-sender" *ngIf="message.sender.userId !== currentUser?.userId">
+            {{ message.sender.username }}
+          </div>
+          
+          <!-- Action icons for own messages -->
+          <div class="message-actions" *ngIf="message.sender.userId === currentUser?.userId && canEditOrDelete(message)">
+            <button (click)="startEditMessage(message); $event.stopPropagation()" class="action-btn edit-btn" title="Edit message">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button (click)="deleteMessage(message._id); $event.stopPropagation()" class="action-btn delete-btn" title="Delete message">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          
+          <!-- Message content -->
+          <div class="message-display">
+            <p>{{ message.content }}</p>
+            <span class="edited-indicator" *ngIf="message.edited">(edited)</span>
+          </div>
+          
+          <span class="timestamp">{{ message.createdAt | date:'short' }}</span>
+        </div>
+      </div>
+      
+      <!-- Typing indicator -->
+      <div class="typing-indicator" *ngIf="typingIndicatorText">
+        <p>{{ typingIndicatorText }}</p>
+      </div>
+    </div>
+    <div class="message-input">
+      <div class="edit-indicator" *ngIf="editingMessageId">
+        <span>Editing message...</span>
+        <button (click)="cancelEdit()" class="cancel-edit-btn">Cancel</button>
+      </div>
+      <div class="input-container">
+        <input type="text" [formControl]="messageControl" 
+               [placeholder]="editingMessageId ? 'Edit your message...' : 'Type a message...'" 
+               (keyup.enter)="sendMessage()">
+        <button (click)="sendMessage()">{{ editingMessageId ? 'Update' : 'Send' }}</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #noRoomSelected>
+    <div class="no-room-selected">
+      <h2>Select a room to start chatting</h2>
+    </div>
+  </ng-template>
+</div>

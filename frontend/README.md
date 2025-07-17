@@ -1,103 +1,27 @@
-# Chat Application Frontend
+# ChatboxFrontend
 
-A modern chat application built with Angular, featuring real-time messaging, room management, and user authentication.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.20.
 
-## Features
+## Development server
 
-- User authentication (login, register)
-- Real-time messaging with Socket.io
-- Public and private chat rooms
-- Message editing and deletion
-- Modern monochrome UI with Material Design
-- Responsive layout for all devices
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Prerequisites
+## Code scaffolding
 
-- Node.js (v18 or higher)
-- npm (v9 or higher)
-- Angular CLI (v17 or higher)
-
-## Setup
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Configure environment variables:
-   - Copy `src/environments/environment.ts` to `environment.prod.ts`
-   - Update API URLs in both files to match your backend services
-
-3. Start the development server:
-   ```bash
-   ng serve
-   ```
-
-4. Open your browser and navigate to `http://localhost:4200`
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 
 ## Build
 
-To build the application for production:
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-```bash
-ng build --configuration production
-```
+## Running unit tests
 
-The build artifacts will be stored in the `dist/` directory.
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running Tests
+## Running end-to-end tests
 
-Run unit tests:
-```bash
-ng test
-```
+Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
 
-## Project Structure
+## Further help
 
-```
-src/
-├── app/
-│   ├── core/              # Core module (services, guards, interceptors)
-│   ├── features/          # Feature modules (auth, chat)
-│   ├── shared/           # Shared module (components, styles)
-│   └── app.*            # App root component
-├── assets/              # Static assets
-└── environments/        # Environment configurations
-```
-
-## Dependencies
-
-- @angular/material - Material Design components
-- @angular/cdk - Component Development Kit
-- socket.io-client - WebSocket client
-- @auth0/angular-jwt - JWT handling
-
-## Development
-
-1. Core Module
-   - HTTP interceptors for authentication
-   - Services for auth, chat, and WebSocket
-   - Route guards
-
-2. Auth Module
-   - Login and registration components
-   - JWT-based authentication
-   - Form validation
-
-3. Chat Module
-   - Room list and chat room components
-   - Real-time messaging with Socket.io
-   - Message editing and deletion
-
-4. Shared Module
-   - Material Design components
-   - Common styles and utilities
-   - Monochrome theme
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
