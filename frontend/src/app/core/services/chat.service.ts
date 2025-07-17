@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 //@ts-ignore
 import { io, Socket } from 'socket.io-client';
 import { AuthService } from './auth.service';
+import { CHAT_SERVICE_URL } from '../../../utils/config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private apiUrl = '/api/chat'; // Using proxy
+  private apiUrl = CHAT_SERVICE_URL; // Using proxy
   //@ts-ignore
   private socket: Socket | null = null;
 

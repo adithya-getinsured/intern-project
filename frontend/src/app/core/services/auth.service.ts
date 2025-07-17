@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
+import { AUTH_SERVICE_URL } from '../../../utils/config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = '/api/auth'; // Using proxy
+  private apiUrl = AUTH_SERVICE_URL; // Using proxy
 
   private userSubject = new BehaviorSubject<any | null>(null);
   user$ = this.userSubject.asObservable();
