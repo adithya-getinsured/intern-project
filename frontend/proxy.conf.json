@@ -10,10 +10,6 @@
     "changeOrigin": true
   },
   "/socket.io": {
-    "target": "http://localhost:3002",
-    "secure": false,
-    "ws": true,
-    "changeOrigin": true,
-    "logLevel": "debug"
+    "target": "http://localhost:3002"
   }
 } 
