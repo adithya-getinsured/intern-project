@@ -3,6 +3,11 @@ const Room = require('../models/Room');
 class RoomService {
   // Create a new room
   async createRoom(roomData, userId, username) {
+    const existingRoom = await Room.findOne({ name: roomData.name });
+    if (existingRoom) {
+      throw new Error('Room already exists');
+    }
+
     const room = new Room({
       ...roomData,
       createdBy: userId,
@@ -28,8 +33,7 @@ class RoomService {
   // Get user's rooms
   async getUserRooms(userId) {
     return await Room.find({
-      'members.userId': userId,
-      isActive: true
+      'createdBy': userId
     }).sort({ lastActivity: -1 });
   }
 

@@ -17,7 +17,15 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'Token is not valid' });
     }
 
-    req.user = response.data.user;
+    const user = response.data.user;
+    req.user = {
+      id: user.id || user._id || user.userId,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      ...user
+    };
+    
     next();
   } catch (error) {
     console.error('Auth middleware error:', error.message);
@@ -42,7 +50,15 @@ const socketAuthMiddleware = async (socket, next) => {
       return next(new Error('Invalid token'));
     }
 
-    socket.user = response.data.user;
+    const user = response.data.user;
+    socket.user = {
+      id: user.id || user._id || user.userId,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      ...user
+    };
+    
     next();
   } catch (error) {
     console.error('Socket auth error:', error.message);

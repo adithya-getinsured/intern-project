@@ -81,7 +81,7 @@ class ChatService {
     }
 
     await Message.findByIdAndDelete(messageId);
-    return messageId;
+    return { messageId, roomId: message.roomId.toString() };
   }
 
   // Get recent messages for multiple rooms

@@ -17,6 +17,9 @@ const io = new Server(server, {
   }
 });
 
+// Register io on the Express app so controllers can emit socket events
+app.set('io', io);
+
 chatSocket(io);
 
 server.listen(PORT, () => {

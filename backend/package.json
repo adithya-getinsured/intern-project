@@ -1,0 +1,11 @@
+{
+  "name": "microservices-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix auth-service\" \"npm run dev --prefix chat-service\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
