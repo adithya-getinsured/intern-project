@@ -1,16 +1,16 @@
 {
   "/api/auth": {
-    "target": "http://localhost:3001",
+    "target": "https://chatbox-auth-service.onrender.com",
     "secure": false,
     "changeOrigin": true
   },
   "/api/chat": {
-    "target": "http://localhost:3002",
+    "target": "https://chatbox-chat-service.onrender.com",
     "secure": false,
     "changeOrigin": true
   },
   "/socket.io": {
-    "target": "http://localhost:3002",
+    "target": "https://chatbox-chat-service.onrender.com",
     "secure": false,
     "ws": true,
     "changeOrigin": true,
