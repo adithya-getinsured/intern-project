@@ -2,6 +2,8 @@
 
 ChatterBox is a real-time chat application built with modern web technologies. It allows users to register, log in, join chat rooms, and exchange messages in real time. With persistent message history and a clean Angular-powered UI, ChatterBox provides a smooth and responsive chat experience.
 
+https://github.com/user-attachments/assets/4bd9534e-8647-4aa2-a240-3596e3fe1cea
+
 ---
 
 ## Features
