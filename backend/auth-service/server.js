@@ -10,7 +10,11 @@ const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/chat-auth';
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: `${ process.env.NODE_ENV === 'development' ? '*' : [process.env.FRONTEND_URL, process.env.CHAT_SERVICE_URL]}`,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
+}));
 app.use(express.json());
 
 // Routes

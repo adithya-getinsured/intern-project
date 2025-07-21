@@ -23,7 +23,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
+    origin: `${ process.env.NODE_ENV === 'development' ? '*' : [process.env.FRONTEND_URL]}`,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type", "x-requested-with"],
     credentials: true
@@ -38,7 +38,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27018/chat-s
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:4200", "http://127.0.0.1:4200"],
+  origin: `${ process.env.NODE_ENV === 'development' ? '*' : [process.env.FRONTEND_URL]}`,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
 }));
