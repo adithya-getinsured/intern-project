@@ -37,7 +37,11 @@ const PORT = process.env.PORT || 3002;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
+}));
 app.use(express.json());
 
 // Routes
