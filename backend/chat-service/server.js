@@ -23,7 +23,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
+    origin: '*',
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type", "x-requested-with"],
     credentials: true
@@ -37,11 +37,7 @@ const PORT = process.env.PORT || 3002;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Middleware
-app.use(cors({
-  origin: [process.env.FRONTEND_URL, process.env.CRON_JOB_URL],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Authorization', 'Content-Type', 'x-requested-with']
-}));
+app.use(cors());
 app.use(express.json());
 
 // Routes
