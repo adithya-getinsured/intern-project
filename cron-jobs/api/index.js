@@ -3,7 +3,6 @@ const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
 
 // URLs for the services
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL;
@@ -31,6 +30,6 @@ setInterval(() => {
 pingService(AUTH_SERVICE_URL, 'Auth Service');
 pingService(CHAT_SERVICE_URL, 'Chat Service');
 
-app.listen(PORT, () => {
-  console.log(`Cron job server running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log(`Cron job server running on port 3000`);
 }); 
